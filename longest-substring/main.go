@@ -17,6 +17,7 @@ func main() {
 		{"aab", 2},
 		{"bbbbbbb", 1},
 		{"dvdf", 3},
+		{"anviaj", 5},
 	}
 
 	for _, t := range testCases {
@@ -37,43 +38,43 @@ func lengthOfLongestSubstring(s string) int {
 		return n
 	}
 
-	startIndex := 0
+	startIndex, currentIndex := 0, 0
+	store := make(map[byte]int)
 	maxSubstringLen := 0
-	
+	substringLen := 0
+
 	for startIndex != n {
-		store := make(map[byte]struct{})
-		substring := ""
-		substringLen := 0
-		breakout := false
-		for i := startIndex; i < n; i++ {
-			if i == n-1 {
-				breakout = true
-			}
+		for i := currentIndex; i < n; i++ {
 			c := s[i]
-			//1. check if in store
-			if _, ok := store[c]; !ok {
-				// 2. if not then add
-				store[c] = struct{}{}
-				// 3. add to substring and increment substringlen
-				substring += string(c)
+			charIdx, ok := store[c]
+			if !ok {
+				store[c] = i
 				substringLen++
-				if substringLen > maxSubstringLen {
-					maxSubstringLen = substringLen
-				}
+				maxSubstringLen = max(substringLen, maxSubstringLen)
 			} else {
-				// 2. already in store
-				// 2a. record substring len.
-				// 2b. update store.
-				startIndex++
-				if i != n-1 {
-					break
+				startIndex = charIdx + 1
+				currentIndex = i
+
+				store[c] = i
+				for k, val := range store {
+					if val <= charIdx {
+						delete(store, k)
+						substringLen--
+					}
 				}
 			}
 		}
-		if breakout {
+		if currentIndex != n-1 {
 			break
 		}
 	}
 
 	return maxSubstringLen
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
