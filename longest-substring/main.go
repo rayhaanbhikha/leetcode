@@ -2,120 +2,78 @@ package main
 
 import "fmt"
 
+type testCase struct {
+	input  string
+	expect int
+}
+
 func main() {
-	fmt.Println("abcabcbb", lengthOfLongestSubstring("pwwkew"))
-	fmt.Println("pwwkew", lengthOfLongestSubstring("abcabcbb"))
-	fmt.Println("nfpdmpi", lengthOfLongestSubstring("nfpdmpi"))
-	fmt.Println(" ", lengthOfLongestSubstring(" "))
-	fmt.Println("aab", lengthOfLongestSubstring("aab"))
-	fmt.Println("bbbbbbb", lengthOfLongestSubstring("bbbbbbb"))
-	fmt.Println("dvdf", lengthOfLongestSubstring("dvdf"))
+	testCases := []testCase{
+		{"", 0},
+		{"a", 1},
+		{"abcabcbb", 3},
+		{"pwwkew", 3},
+		{"nfpdmpi", 5},
+		{"aab", 2},
+		{"bbbbbbb", 1},
+		{"dvdf", 3},
+	}
+
+	for _, t := range testCases {
+		output := lengthOfLongestSubstring(t.input)
+		fmt.Printf("%s -> e: %d a: %d\n", t.input, t.expect, output)
+		if output != t.expect {
+			fmt.Println("FAIL!", t.input)
+			break
+		}
+	}
+
 }
 
 // sliding window implementation
 func lengthOfLongestSubstring(s string) int {
-	if x := len(s); x == 1 || x == 0 {
-		return x
-	}
-
-	maxSubStringlen := 0
 	n := len(s)
+	if n == 0 || n == 1 {
+		return n
+	}
+
 	startIndex := 0
-
+	maxSubstringLen := 0
+	
 	for startIndex != n {
-		stored := make(map[rune]struct{})
-		subStringlen := 0
+		store := make(map[byte]struct{})
+		substring := ""
+		substringLen := 0
+		breakout := false
 		for i := startIndex; i < n; i++ {
-			c := rune(s[i])
-			if _, ok := stored[c]; !ok {
-				stored[c] = struct{}{}
-				subStringlen++
-			} else {
-				startIndex++
-				break
-			}
 			if i == n-1 {
-				startIndex++
+				breakout = true
 			}
-			maxSubStringlen = max(subStringlen, maxSubStringlen)
+			c := s[i]
+			//1. check if in store
+			if _, ok := store[c]; !ok {
+				// 2. if not then add
+				store[c] = struct{}{}
+				// 3. add to substring and increment substringlen
+				substring += string(c)
+				substringLen++
+				if substringLen > maxSubstringLen {
+					maxSubstringLen = substringLen
+				}
+			} else {
+				// 2. already in store
+				// 2a. record substring len.
+				// 2b. update store.
+				startIndex++
+				if i != n-1 {
+					break
+				}
+			}
 		}
-
+		if breakout {
+			break
+		}
 	}
 
-	return maxSubStringlen
+	return maxSubstringLen
 }
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-// simple while loop implmentation
-
-// func lengthOfLongestSubstring(s string) int {
-// 	maxSubStringlen := 0
-
-// 	for len(s) != 0 {
-// 		stored := make(map[rune]struct{})
-// 		n := len(s)
-// 		subStringlen := 0
-// 		for index, c := range s {
-// 			if _, ok := stored[c]; !ok {
-// 				stored[c] = struct{}{}
-// 				subStringlen++
-// 			} else {
-// 				fmt.Println(s, subStringlen, maxSubStringlen, index, n-1)
-
-// 				if subStringlen > maxSubStringlen {
-// 					maxSubStringlen = subStringlen
-// 				}
-
-// 				if index == n-1 {
-// 					return maxSubStringlen
-// 				}
-// 				break
-// 			}
-// 		}
-// 		if subStringlen > maxSubStringlen {
-// 			maxSubStringlen = subStringlen
-// 		}
-// 		s = s[1:]
-// 	}
-
-// 	return maxSubStringlen
-// }
-
-// recusive implementation
-
-// func lengthOfLongestSubstring(s string) int {
-// 	return l(s, 0)
-// }
-
-// func l(s string, maxSubStringlen int) int {
-// 	stored := make(map[rune]struct{})
-// 	n := len(s)
-// 	subStringlen := 0
-// 	for index, c := range s {
-// 		if _, ok := stored[c]; !ok {
-// 			stored[c] = struct{}{}
-// 			subStringlen++
-// 		} else {
-// 			fmt.Println(s, subStringlen, maxSubStringlen, index, n-1)
-
-// 			if subStringlen < maxSubStringlen {
-// 				subStringlen = maxSubStringlen
-// 			}
-
-// 			if index == n-1 {
-// 				return subStringlen
-// 			}
-// 			return l(s[1:], subStringlen)
-// 		}
-// 	}
-// 	if subStringlen < maxSubStringlen {
-// 		subStringlen = maxSubStringlen
-// 	}
-// 	return subStringlen
-// }
